@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于 - AuToJs</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=1.2">
+</head>
+<body>
+<header class="topbar">
+    <div class="container">
+        <div class="logo">AuToJs <span class="sub">TXT → AutoJS 在线转换</span></div>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/index/about.html">关于</a>
+            <a href="/admin/login.html">管理</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container narrow">
+    <div class="card">
+        <h2>关于本项目</h2>
+        <p>本工具用于将 SkyStudio 导出的乐谱 <code>.txt</code> 转换为 AutoJS 自动化脚本 <code>.js</code>。</p>
+        <p>转换核心实现了完整的 SkyStudio 乐谱解析与 AutoJS 脚本生成：</p>
+        <table class="map">
+            <thead><tr><th>能力</th><th>说明</th></tr></thead>
+            <tbody>
+                <tr><td>编码识别</td><td>UTF-16 LE BOM 自动识别与转码</td></tr>
+                <tr><td>谱面解析</td><td>支持 Json 谱（<code>"songNotes"</code> 数组）和 ABC 谱（<code>&lt;DontCopyThisLine&gt;</code> 头）</td></tr>
+                <tr><td>BPM 与节拍</td><td>按 BPM 计算 lNoteTime，自动拆分 <code>1/2/4</code> 倍间隔</td></tr>
+                <tr><td>琴键映射</td><td>15 键布局 + 21 键扩展布局，支持多键同按</td></tr>
+                <tr><td>输出模板</td><td>3 种可选：<strong>按压</strong>（单行函数 + 悬浮窗）/ <strong>按压新</strong>（gestures 列表 + 35ms 短按 + 进度条）/ <strong>长按</strong>（gestures 列表 + 延音 + 音量键控制）</td></tr>
+                <tr><td>异常拦截</td><td>非 UTF-16 / BPM 越界 / 空数据 / IO 失败均返回明确错误码</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="card tip">
+        <h3>项目说明</h3>
+        <ol>
+            <li>本工具完全本地化处理：源文件经随机重命名后存储，转换过程不依赖第三方服务，文件在 72 小时后自动清理。</li>
+            <li>支持 Json 谱与 ABC 谱解析，可选择 3 种输出模板：按压 / 按压新 / 长按。</li>
+            <li><strong>单文件</strong>支持 <code>.txt</code> 与 <code>.js</code> 任意；<strong>批量 ZIP</strong>支持 <code>.txt</code> 与 <code>.js</code> 混合压缩；<strong>文件夹批量</strong>输入服务器侧绝对路径，递归扫描 <code>.txt</code> 与 <code>.js</code>。当源是 <code>.js</code> 时需额外指定"源模板"以便反解析回音符表。</li>
+            <li>保存方式可选：<strong>下载链接</strong>（72h 内有效）/ <strong>Web 可访问</strong>（可在浏览器直接打开）/ <strong>本地文件夹</strong>（资源管理器可见，不会被自动清理）。</li>
+            <li>所有临时文件 72 小时后自动清理；管理后台仅限管理员访问，默认账号密码请在部署后立即修改。</li>
+        </ol>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <p>© 2024 AuToJs · Powered by ThinkPHP 6.1</p>
+    </div>
+</footer>
+</body>
+</html>

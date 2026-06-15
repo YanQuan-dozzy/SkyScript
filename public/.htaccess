@@ -1,0 +1,18 @@
+# AuToJs Apache 伪静态（ThinkPHP 6 标准）
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks -Multiviews
+  RewriteEngine On
+
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php [L,E=PATH_INFO:$1]
+</IfModule>
+
+# 禁止访问敏感目录
+<FilesMatch "\.(env|gitignore|log|ini|sqlite|sql)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# 安全：禁止目录浏览
+Options -Indexes

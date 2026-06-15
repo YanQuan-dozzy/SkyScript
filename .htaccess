@@ -1,0 +1,36 @@
+# AuToJs 根目录 Apache 配置
+# 当站点根指向 www.AuToJs.com（而非 public）时启用
+
+# 强制跳转到 public 子目录入口
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    # 真实存在的目录/文件直接交给 Apache（不再重写）
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# 禁止访问 .env 等敏感文件
+<FilesMatch "\.(env|log|ini|sqlite|sql|bak|conf)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# 禁止访问 runtime 目录（即使已通过 .htaccess 兜底）
+RedirectMatch 403 ^/runtime/.*$
+
+# 禁止访问 vendor 目录
+RedirectMatch 403 ^/vendor/.*$
+
+# 禁止访问 app 目录
+RedirectMatch 403 ^/app/.*$
+
+# 禁止访问 config
+RedirectMatch 403 ^/config/.*$
+
+# 禁止访问 route
+RedirectMatch 403 ^/route/.*$
+
+# 禁止 web 访问 converted/ 目录（本地保存目录）
+RedirectMatch 403 ^/converted(/|$)

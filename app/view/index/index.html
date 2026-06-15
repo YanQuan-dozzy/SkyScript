@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkyStudio TXT 转 AutoJS 工具</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=1.2">
+    <link rel="stylesheet" href="/static/css/highlight.css?v=1.0">
+</head>
+<body>
+<header class="topbar">
+    <div class="container">
+        <div class="logo">AuToJs <span class="sub">TXT → AutoJS 在线转换</span></div>
+        <nav>
+            <a href="/">首页</a>
+            <a href="/index/about.html">关于</a>
+            <a href="/admin/login.html">管理</a>
+        </nav>
+    </div>
+</header>
+
+<section class="hero">
+    <div class="container">
+        <h1>SkyStudio TXT 转 AutoJS 脚本</h1>
+        <p class="lead">单文件即时转换 · 支持 Json / ABC 谱 · 拖拽即用</p>
+        <div class="meta">
+            <span>今日转换：<b id="stat-today">{$stats.today|default=0}</b></span>
+            <span>累计转换：<b id="stat-total">{$stats.total|default=0}</b></span>
+        </div>
+    </div>
+</section>
+
+<main class="container">
+    <div class="card">
+        <h2>① 选择转换模式</h2>
+        <div class="tabs">
+            <button class="tab active" data-mode="single">单文件</button>
+            <button class="tab" data-mode="batch">批量 ZIP</button>
+            <button class="tab" data-mode="folder">文件夹批量</button>
+        </div>
+
+        <div id="panel-single" class="panel active">
+            <div class="template-picker">
+                <span class="tp-label">输出 JS 模板：</span>
+                <label class="tp-opt"><input type="radio" name="template" value="press" checked><span>按压</span><em>单行函数 + 悬浮窗控制</em></label>
+                <label class="tp-opt"><input type="radio" name="template" value="press_new"><span>按压新</span><em>gestures 列表 + 35ms 短按 + 进度条</em></label>
+                <label class="tp-opt"><input type="radio" name="template" value="long_press"><span>长按</span><em>gestures 列表 + 按压 = 间隔（延音）+ 音量键</em></label>
+            </div>
+            <div class="src-template-picker hidden" id="src-tpl-single">
+                <span class="tp-label">源模板（仅 .js）：</span>
+                <label class="tp-opt"><input type="radio" name="src_template" value="press" checked><span>按压</span></label>
+                <label class="tp-opt"><input type="radio" name="src_template" value="press_new"><span>按压新</span></label>
+                <label class="tp-opt"><input type="radio" name="src_template" value="long_press"><span>长按</span></label>
+            </div>
+            <div class="save-picker">
+                <span class="tp-label">保存方式（可多选）：</span>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="download" checked><span>下载链接</span><em>转换后提供 .js 下载 URL（72h 内有效）</em></label>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="web_access"><span>Web 可访问</span><em>复制到 <code>downloads/</code>，浏览器可直接打开</em></label>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="local_folder"><span>本地文件夹</span><em>复制到项目根 <code>converted/</code>，资源管理器可见</em></label>
+            </div>
+            <div id="dropzone" class="dropzone">
+                <p class="dz-icon">⤓</p>
+                <p class="dz-tip">拖拽 .txt / .js 到此处 或 <a href="javascript:;" id="browse">点击选择</a></p>
+                <p class="dz-sub">.txt：SkyStudio 乐谱；.js：上一步生成的脚本，将被反解析后用上方模板重新渲染</p>
+                <input type="file" id="file-input" accept=".txt,.js" hidden>
+            </div>
+            <div id="file-info" class="file-info hidden">
+                <span id="fi-name"></span>
+                <span id="fi-size"></span>
+                <button class="btn-link" id="fi-reset">移除</button>
+            </div>
+        </div>
+
+        <div id="panel-batch" class="panel">
+            <div class="template-picker">
+                <span class="tp-label">输出 JS 模板：</span>
+                <label class="tp-opt"><input type="radio" name="template-batch" value="press" checked><span>按压</span><em>单行函数 + 悬浮窗控制</em></label>
+                <label class="tp-opt"><input type="radio" name="template-batch" value="press_new"><span>按压新</span><em>gestures 列表 + 35ms 短按 + 进度条</em></label>
+                <label class="tp-opt"><input type="radio" name="template-batch" value="long_press"><span>长按</span><em>gestures 列表 + 按压 = 间隔（延音）+ 音量键</em></label>
+            </div>
+            <div class="src-template-picker hidden" id="src-tpl-batch">
+                <span class="tp-label">源模板（仅 .js）：</span>
+                <label class="tp-opt"><input type="radio" name="src_template-batch" value="press" checked><span>按压</span></label>
+                <label class="tp-opt"><input type="radio" name="src_template-batch" value="press_new"><span>按压新</span></label>
+                <label class="tp-opt"><input type="radio" name="src_template-batch" value="long_press"><span>长按</span></label>
+            </div>
+            <div class="save-picker">
+                <span class="tp-label">保存方式（可多选）：</span>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="download" checked><span>下载链接</span><em>转换后提供 .zip 下载 URL（72h 内有效）</em></label>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="web_access"><span>Web 可访问</span><em>复制到 <code>downloads/</code>，浏览器可直接打开</em></label>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="local_folder"><span>本地文件夹</span><em>复制到项目根 <code>converted/</code>，资源管理器可见</em></label>
+            </div>
+            <div id="dropzone2" class="dropzone">
+                <p class="dz-icon">📦</p>
+                <p class="dz-tip">拖拽 .zip 到此处 或 <a href="javascript:;" id="browse2">点击选择</a></p>
+                <p class="dz-sub">压缩包内可含 .txt 与 .js 混合；最多 200 个；单 zip ≤ 50MB；解压 ≤ 200MB</p>
+                <input type="file" id="file-input2" accept=".zip" hidden>
+            </div>
+            <div id="file-info2" class="file-info hidden">
+                <span id="fi-name2"></span>
+                <span id="fi-size2"></span>
+                <button class="btn-link" id="fi-reset2">移除</button>
+            </div>
+        </div>
+
+        <div id="panel-folder" class="panel">
+            <div class="template-picker">
+                <span class="tp-label">输出 JS 模板：</span>
+                <label class="tp-opt"><input type="radio" name="template-folder" value="press" checked><span>按压</span><em>单行函数 + 悬浮窗控制</em></label>
+                <label class="tp-opt"><input type="radio" name="template-folder" value="press_new"><span>按压新</span><em>gestures 列表 + 35ms 短按 + 进度条</em></label>
+                <label class="tp-opt"><input type="radio" name="template-folder" value="long_press"><span>长按</span><em>gestures 列表 + 按压 = 间隔（延音）+ 音量键</em></label>
+            </div>
+            <div class="src-template-picker" id="src-tpl-folder">
+                <span class="tp-label">源模板（仅 .js 文件需要）：</span>
+                <label class="tp-opt"><input type="radio" name="src_template-folder" value="press" checked><span>按压</span></label>
+                <label class="tp-opt"><input type="radio" name="src_template-folder" value="press_new"><span>按压新</span></label>
+                <label class="tp-opt"><input type="radio" name="src_template-folder" value="long_press"><span>长按</span></label>
+            </div>
+            <div class="save-picker">
+                <span class="tp-label">保存方式（可多选）：</span>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="download" checked><span>下载链接</span><em>转换后提供 .zip 下载 URL（72h 内有效）</em></label>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="web_access"><span>Web 可访问</span><em>复制到 <code>downloads/</code>，浏览器可直接打开</em></label>
+                <label class="sv-opt"><input type="checkbox" name="save_mode" value="local_folder"><span>本地文件夹</span><em>复制到项目根 <code>converted/</code>，资源管理器可见</em></label>
+            </div>
+            <div class="folder-form">
+                <label class="folder-label">服务器侧文件夹绝对路径：</label>
+                <input type="text" id="folder-path" class="folder-input"
+                       placeholder="例如：D:\phpstudy_pro\WWW\www.AuToJs.com\test\converted">
+                <p class="folder-hint">⚠️ 该路径是服务器（phpstudy 所在机器）上的本地目录，非浏览器端文件。系统会递归扫描其中的 <code>.txt</code> 与 <code>.js</code> 文件并逐个转换，最多 500 个。</p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="btn-submit" class="btn-primary" disabled>开始转换</button>
+            <span id="status" class="status"></span>
+        </div>
+
+        <div id="progress-wrap" class="progress-wrap hidden">
+            <div class="progress-bar"><div id="progress-bar"></div></div>
+            <div id="progress-text" class="progress-text"></div>
+        </div>
+    </div>
+
+    <div id="result" class="card hidden">
+        <h2>② 转换结果</h2>
+        <div class="result-bar">
+            <span class="result-tag" id="res-mode">SINGLE</span>
+            <span id="res-summary"></span>
+            <a id="res-download" class="btn-primary" href="javascript:;">下载 .js</a>
+        </div>
+        <div id="res-mirror" class="mirror-list"></div>
+        <pre id="res-code" class="code-preview"></pre>
+    </div>
+</main>
+
+<footer class="footer">
+    <div class="container">
+        <p>© 2024 AuToJs · Powered by ThinkPHP 6.1</p>
+    </div>
+</footer>
+
+<script src="/static/js/app.js?v=1.0"></script>
+</body>
+</html>

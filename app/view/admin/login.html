@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>管理员登录 - AuToJs</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=1.0">
+</head>
+<body class="auth">
+<div class="auth-box">
+    <h1>管理员登录</h1>
+    <form id="login-form">
+        <label>用户名 <input type="text" name="username" required></label>
+        <label>密码 <input type="password" name="password" required></label>
+        <button type="submit" class="btn-primary">登录</button>
+        <p id="login-msg" class="status"></p>
+    </form>
+</div>
+<script>
+document.getElementById('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var fd = new FormData(this);
+    var msg = document.getElementById('login-msg');
+    msg.textContent = '登录中...';
+    fetch('/admin/doLogin.html', { method: 'POST', body: fd, credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (j) {
+            if (j.code === 0) {
+                location.href = j.data.url;
+            } else {
+                msg.textContent = j.msg;
+            }
+        }).catch(function () { msg.textContent = '请求失败'; });
+});
+</script>
+</body>
+</html>

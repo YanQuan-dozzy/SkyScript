@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>管理后台 - AuToJs</title>
+    <link rel="stylesheet" href="/static/css/style.css?v=1.0">
+</head>
+<body>
+<header class="topbar">
+    <div class="container">
+        <div class="logo">AuToJs <span class="sub">管理后台</span></div>
+        <nav>
+            <a href="/">前台</a>
+            <a href="/admin/index.html">记录</a>
+            <a href="javascript:;" id="btn-cleanup">清理临时文件</a>
+            <a href="/admin/logout.html">退出</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container">
+    <div class="cards-row">
+        <div class="stat-card"><div class="stat-num">{$stats.today}</div><div class="stat-label">今日转换</div></div>
+        <div class="stat-card"><div class="stat-num">{$stats.total}</div><div class="stat-label">累计</div></div>
+        <div class="stat-card"><div class="stat-num">{$stats.ok}</div><div class="stat-label">成功</div></div>
+        <div class="stat-card"><div class="stat-num">{$stats.fail}</div><div class="stat-label">失败</div></div>
+    </div>
+
+    <div class="card">
+        <h2>转换记录</h2>
+        <form class="filter" method="get">
+            <input type="text" name="kw" value="{$kw|default=''}" placeholder="按文件名/IP 搜索">
+            <select name="status">
+                <option value="">全部状态</option>
+                <option value="1" {if $status==='1'}selected{/if}>成功</option>
+                <option value="0" {if $status==='0'}selected{/if}>失败</option>
+            </select>
+            <button class="btn-primary" type="submit">筛选</button>
+        </form>
+
+        <table class="list">
+            <thead>
+            <tr><th>ID</th><th>模式</th><th>源文件</th><th>输出</th><th>大小</th><th>用时</th><th>状态</th><th>IP</th><th>时间</th><th>错误</th></tr>
+            </thead>
+            <tbody>
+            {volist name="list" id="vo"}
+            <tr>
+                <td>{$vo.id}</td>
+                <td>{$vo.mode}</td>
+                <td title="{$vo.src_name}">{$vo.src_name|mb_substr=0,32}</td>
+                <td>{$vo.out_name|default='-'}</td>
+                <td>{$vo.src_size|default=0} → {$vo.out_size|default=0}</td>
+                <td>{$vo.cost_ms} ms</td>
+                <td>{if $vo.status==1}<span class="ok">成功</span>{else}<span class="fail">失败</span>{/if}</td>
+                <td>{$vo.user_ip}</td>
+                <td>{$vo.create_time}</td>
+                <td class="err" title="{$vo.error_msg}">{$vo.error_msg|mb_substr=0,30|default='-'}</td>
+            </tr>
+            {/volist}
+            </tbody>
+        </table>
+        {$list|raw}
+    </div>
+</main>
+
+<script>
+document.getElementById('btn-cleanup').addEventListener('click', function () {
+    if (!confirm('确认清理超过 72 小时的临时文件？')) return;
+    fetch('/admin/cleanup.html', { method: 'POST', credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (j) { alert(j.msg); })
+        .catch(function () { alert('请求失败'); });
+});
+</script>
+</body>
+</html>

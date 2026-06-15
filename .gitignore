@@ -1,0 +1,47 @@
+# ============ IDE / Editor ============
+/.idea/
+/.vscode/
+/*.iml
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ============ ThinkPHP / PHP ============
+/vendor/
+composer.lock
+.env
+.env.*
+!.example.env
+/runtime/*
+!/runtime/.gitkeep
+/converted/*
+!/converted/.gitkeep
+/downloads/*
+!/downloads/.gitkeep
+/error/*
+!/error/.gitkeep
+*.log
+
+# ============ Frontend (if any) ============
+/node_modules/
+/public/static/dist/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ============ Test / Output artifacts ============
+/test/output_local/
+/test/output/
+/test/*.zip
+/test/uploads/
+/test/converted/
+*.zip
+*.bak
+
+# ============ Build / Deploy ============
+/build/
+/dist/
+/.deploy/
+*.tar.gz
+*.7z
